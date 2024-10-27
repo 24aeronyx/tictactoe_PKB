@@ -25,6 +25,8 @@ const TicTacToe = () => {
     const [board, setBoard] = useState(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
     const [metrics, setMetrics] = useState({ time: 0, nodes: 0 });
+    const [executionTimes, setExecutionTimes] = useState([]); // Store execution times
+    const [nodeCounts, setNodeCounts] = useState([]); // Store node counts
     const winner = calculateWinner(board);
 
     const handleClick = (index) => {
@@ -44,6 +46,8 @@ const TicTacToe = () => {
         setBoard(Array(9).fill(null));
         setIsXNext(true);
         setMetrics({ time: 0, nodes: 0 }); // Reset metrics
+        setExecutionTimes([]); // Reset execution times
+        setNodeCounts([]); // Reset node counts
     };
 
     const minimax = (board, depth, isMaximizing) => {
@@ -101,7 +105,11 @@ const TicTacToe = () => {
             }
         }
 
-        setMetrics({ time: performance.now() - start, nodes: nodes });
+        const executionTime = performance.now() - start; // Calculate execution time
+        setMetrics({ time: executionTime, nodes: nodes });
+        setExecutionTimes((prev) => [...prev, executionTime]); // Store execution time
+        setNodeCounts((prev) => [...prev, nodes]); // Store node count
+
         if (bestMove !== -1) {
             const newBoard = currentBoard.slice();
             newBoard[bestMove] = 'O'; // AI's move
@@ -110,9 +118,13 @@ const TicTacToe = () => {
         }
     };
 
+    // Calculate average metrics
+    const averageTime = executionTimes.length ? (executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length).toFixed(2) : 0;
+    const averageNodes = nodeCounts.length ? (nodeCounts.reduce((a, b) => a + b, 0) / nodeCounts.length) : 0;
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 to-blue-600 relative">
-            {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />} {/* Show confetti on win */}
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-600 to-blue-400 relative w-full">
+            {/* {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />}  */}
             <h1 className="text-4xl font-bold text-white mb-6 animate-bounce" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
                 Tic Tac Toe
             </h1>
@@ -122,7 +134,7 @@ const TicTacToe = () => {
                         key={index}
                         onClick={() => handleClick(index)}
                         className={`flex items-center justify-center w-24 h-24 text-6xl font-bold rounded-lg transition-transform transform hover:scale-105 
-                          ${value ? 'bg-gray-300 text-gray-700' : 'bg-white text-blue-500 hover:bg-blue-100'} 
+                          ${value ? 'bg-gray-300 text-blue-500' : 'bg-white text-blue-500 hover:bg-blue-100'} 
                           ${winner ? 'cursor-default' : 'cursor-pointer'} 
                           shadow-lg`}
                         disabled={winner || !isXNext} // Disable button if there's a winner or it's not the player's turn
@@ -148,6 +160,8 @@ const TicTacToe = () => {
             <div className="mt-4 text-lg text-center text-white">
                 <p>{`Execution Time: ${metrics.time.toFixed(2)} ms`}</p>
                 <p>{`Nodes Evaluated: ${metrics.nodes}`}</p>
+                <p>{`Average Execution Time: ${averageTime} ms`}</p>
+                <p>{`Average Nodes Evaluated: ${averageNodes}`}</p>
             </div>
         </div>
     );
