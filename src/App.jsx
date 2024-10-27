@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import TicTacToe from './components/TicTacToe'
+import TicTacToeV2 from './components/TicTacToeV2'
 
 function App() {
   return (
     <>
-      tes
+      <TicTacToe/>
+      <TicTacToeV2/>
     </>
   )
 }
