@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Confetti from 'react-confetti'; // Import Confetti component
+import Confetti from 'react-confetti';
 
 const calculateWinner = (squares) => {
     const lines = [
@@ -25,50 +25,54 @@ const TicTacToe = () => {
     const [board, setBoard] = useState(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
     const [metrics, setMetrics] = useState({ time: 0, nodes: 0 });
-    const [executionTimes, setExecutionTimes] = useState([]); // Store execution times
-    const [nodeCounts, setNodeCounts] = useState([]); // Store node counts
+    const [executionTimes, setExecutionTimes] = useState([]);
+    const [nodeCounts, setNodeCounts] = useState([]);
+    const [moveHistory, setMoveHistory] = useState([]); // Track moves made
     const winner = calculateWinner(board);
 
     const handleClick = (index) => {
-        if (board[index] || winner || !isXNext) return; // Prevent action if it's not X's turn
+        if (board[index] || winner || !isXNext) return;
         const newBoard = board.slice();
-        newBoard[index] = 'X'; // Player is 'X'
+        newBoard[index] = 'X';
         setBoard(newBoard);
         setIsXNext(false);
+        setMoveHistory((prev) => [...prev, { player: 'X', index }]); // Log move
+
         if (!calculateWinner(newBoard) && !newBoard.every(Boolean)) {
             setTimeout(() => {
                 makeOptimalMove(newBoard);
-            }, 500); // Delay to give time for player to see their move
+            }, 500);
         }
     };
 
     const resetGame = () => {
         setBoard(Array(9).fill(null));
         setIsXNext(true);
-        setMetrics({ time: 0, nodes: 0 }); // Reset metrics
-        setExecutionTimes([]); // Reset execution times
-        setNodeCounts([]); // Reset node counts
+        setMetrics({ time: 0, nodes: 0 });
+        setExecutionTimes([]);
+        setNodeCounts([]);
+        setMoveHistory([]); // Reset move history
     };
 
     const minimax = (board, depth, isMaximizing) => {
-        let nodesEvaluated = 1; // Count this node
-
+        let nodesEvaluated = 1;
         const winner = calculateWinner(board);
         if (winner) {
-            return winner === 'X' ? 1 : -1; // Return score for maximizing player
+            return winner === 'X' ? 1 : -1;
         }
         if (board.every(Boolean)) {
-            return 0; // Draw
+            return 0;
         }
 
         if (isMaximizing) {
             let bestScore = -Infinity;
             for (let i = 0; i < board.length; i++) {
                 if (!board[i]) {
-                    board[i] = 'O'; // AI is 'O'
-                    bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
-                    board[i] = null; // Undo move
-                    nodesEvaluated++; // Count nodes evaluated in recursion
+                    board[i] = 'O';
+                    const score = minimax(board, depth + 1, false);
+                    board[i] = null;
+                    nodesEvaluated++;
+                    bestScore = Math.max(bestScore, score);
                 }
             }
             return bestScore;
@@ -76,10 +80,11 @@ const TicTacToe = () => {
             let bestScore = Infinity;
             for (let i = 0; i < board.length; i++) {
                 if (!board[i]) {
-                    board[i] = 'X'; // Player's move
-                    bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
-                    board[i] = null; // Undo move
-                    nodesEvaluated++; // Count nodes evaluated in recursion
+                    board[i] = 'X';
+                    const score = minimax(board, depth + 1, true);
+                    board[i] = null;
+                    nodesEvaluated++;
+                    bestScore = Math.min(bestScore, score);
                 }
             }
             return bestScore;
@@ -87,17 +92,17 @@ const TicTacToe = () => {
     };
 
     const makeOptimalMove = (currentBoard) => {
-        const start = performance.now(); // Start timer
+        const start = performance.now();
         let bestScore = -Infinity;
         let bestMove = -1;
         let nodes = 0;
 
         for (let i = 0; i < currentBoard.length; i++) {
             if (!currentBoard[i]) {
-                currentBoard[i] = 'O'; // Simulate AI's move
+                currentBoard[i] = 'O';
                 const score = minimax(currentBoard, 0, false);
-                currentBoard[i] = null; // Undo move
-                nodes++; // Count nodes evaluated
+                currentBoard[i] = null;
+                nodes++;
                 if (score > bestScore) {
                     bestScore = score;
                     bestMove = i;
@@ -105,26 +110,26 @@ const TicTacToe = () => {
             }
         }
 
-        const executionTime = performance.now() - start; // Calculate execution time
+        const executionTime = performance.now() - start;
         setMetrics({ time: executionTime, nodes: nodes });
-        setExecutionTimes((prev) => [...prev, executionTime]); // Store execution time
-        setNodeCounts((prev) => [...prev, nodes]); // Store node count
+        setExecutionTimes((prev) => [...prev, executionTime]);
+        setNodeCounts((prev) => [...prev, nodes]);
 
         if (bestMove !== -1) {
             const newBoard = currentBoard.slice();
-            newBoard[bestMove] = 'O'; // AI's move
+            newBoard[bestMove] = 'O';
             setBoard(newBoard);
-            setIsXNext(true); // Set turn back to player
+            setIsXNext(true);
+            setMoveHistory((prev) => [...prev, { player: 'O', index: bestMove, nodesEvaluated: nodes, executionTime }]); // Log AI move
         }
     };
 
-    // Calculate average metrics
     const averageTime = executionTimes.length ? (executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length).toFixed(2) : 0;
-    const averageNodes = nodeCounts.length ? (nodeCounts.reduce((a, b) => a + b, 0) / nodeCounts.length) : 0;
+    const averageNodes = nodeCounts.length ? (nodeCounts.reduce((a, b) => a + b, 0) / nodeCounts.length).toFixed(0) : 0;
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-600 to-blue-400 relative w-full">
-            {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />} 
+            {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />}
             <h1 className="text-4xl font-bold text-white mb-6 animate-bounce" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
                 Tic Tac Toe
             </h1>
@@ -137,7 +142,7 @@ const TicTacToe = () => {
                           ${value ? 'bg-gray-300 text-blue-500' : 'bg-white text-blue-500 hover:bg-blue-100'} 
                           ${winner ? 'cursor-default' : 'cursor-pointer'} 
                           shadow-lg`}
-                        disabled={winner || !isXNext} // Disable button if there's a winner or it's not the player's turn
+                        disabled={winner || !isXNext}
                     >
                         {value}
                     </button>
@@ -162,6 +167,16 @@ const TicTacToe = () => {
                 <p>{`Nodes Evaluated: ${metrics.nodes}`}</p>
                 <p>{`Average Execution Time: ${averageTime} ms`}</p>
                 <p>{`Average Nodes Evaluated: ${averageNodes}`}</p>
+            </div>
+            <div className="mt-6 text-white">
+                <h2 className="text-xl font-bold">Move History</h2>
+                <ul>
+                    {moveHistory.map((move, index) => (
+                        <li key={index} className="text-lg">
+                            Player {move.player} moved at index {move.index} {move.nodesEvaluated !== undefined ? `(Nodes Evaluated: ${move.nodesEvaluated}, Time: ${move.executionTime.toFixed(2)} ms)` : ''}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );
