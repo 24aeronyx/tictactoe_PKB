@@ -60,6 +60,8 @@ const TicTacToeV2 = () => {
     setBoard(Array(9).fill(null));
     setIsXNext(true);
     setMetrics({ time: 0, nodes: 0 }); // Reset only current metrics
+    // Uncomment the following line to reset total metrics
+    // setTotalMetrics({ totalTime: 0, totalNodes: 0, gamesPlayed: 0 });
   };
 
   const minimax = (board, depth, isMaximizing, alpha, beta) => {
