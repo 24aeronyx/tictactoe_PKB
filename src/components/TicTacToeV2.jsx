@@ -5,9 +5,9 @@ const TicTacToeV2 = () => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [status, setStatus] = useState("Giliran: Anda (X)");
-  const [moveStats, setMoveStats] = useState([]); 
+  const [moveStats, setMoveStats] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isDraw, setIsDraw] = useState(false); 
+  const [isDraw, setIsDraw] = useState(false);
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -21,7 +21,11 @@ const TicTacToeV2 = () => {
       [2, 4, 6],
     ];
     for (let [a, b, c] of lines) {
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      if (
+        squares[a] &&
+        squares[a] === squares[b] &&
+        squares[a] === squares[c]
+      ) {
         return squares[a];
       }
     }
@@ -45,10 +49,13 @@ const TicTacToeV2 = () => {
         for (let i = 0; i < 9; i++) {
           if (squares[i] === null) {
             squares[i] = "O";
-            bestScore = Math.max(bestScore, evaluate(squares, false, alpha, beta));
+            bestScore = Math.max(
+              bestScore,
+              evaluate(squares, false, alpha, beta)
+            );
             squares[i] = null;
             alpha = Math.max(alpha, bestScore);
-            if (beta <= alpha) break; 
+            if (beta <= alpha) break;
           }
         }
         return bestScore;
@@ -57,10 +64,13 @@ const TicTacToeV2 = () => {
         for (let i = 0; i < 9; i++) {
           if (squares[i] === null) {
             squares[i] = "X";
-            bestScore = Math.min(bestScore, evaluate(squares, true, alpha, beta));
+            bestScore = Math.min(
+              bestScore,
+              evaluate(squares, true, alpha, beta)
+            );
             squares[i] = null;
             beta = Math.min(beta, bestScore);
-            if (beta <= alpha) break; 
+            if (beta <= alpha) break;
           }
         }
         return bestScore;
@@ -72,10 +82,7 @@ const TicTacToeV2 = () => {
     let end = performance.now();
     let executionTime = end - start;
 
-    setMoveStats((prevStats) => [
-      ...prevStats,
-      { executionTime, nodeCount },
-    ]);
+    setMoveStats((prevStats) => [...prevStats, { executionTime, nodeCount }]);
 
     return score;
   };
@@ -125,7 +132,7 @@ const TicTacToeV2 = () => {
     } else if (!squares.includes(null)) {
       setStatus("Seri!");
       setShowConfetti(false);
-      setIsDraw(true); // Tandai hasil seri
+      setIsDraw(true);
     } else {
       setStatus(`Giliran: ${isXNext ? "Anda (X)" : "AI (O)"}`);
       setShowConfetti(false);
@@ -143,7 +150,10 @@ const TicTacToeV2 = () => {
   };
 
   const calculateAverages = () => {
-    const totalTime = moveStats.reduce((acc, stat) => acc + stat.executionTime, 0);
+    const totalTime = moveStats.reduce(
+      (acc, stat) => acc + stat.executionTime,
+      0
+    );
     const totalNodes = moveStats.reduce((acc, stat) => acc + stat.nodeCount, 0);
     const averageTime = totalTime / moveStats.length || 0;
     const averageNodes = totalNodes / moveStats.length || 0;
@@ -154,16 +164,24 @@ const TicTacToeV2 = () => {
   const { averageTime, averageNodes } = calculateAverages();
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${isDraw ? "bg-gray-500" : "from-blue-500 to-indigo-600"} w-full p-4 transition-colors duration-500`}>
+    <div
+      className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${
+        isDraw ? "bg-gray-500" : "from-blue-500 to-indigo-600"
+      } w-full p-4 transition-colors duration-500`}
+    >
       <h1 className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce">
         Tic-Tac-Toe V2
       </h1>
-      <div className={`grid grid-cols-3 gap-4 ${isDraw ? "animate-pulse" : ""}`}>
+      <div
+        className={`grid grid-cols-3 gap-4 ${isDraw ? "animate-pulse" : ""}`}
+      >
         {squares.map((square, i) => (
           <button
             key={i}
             onClick={() => handleClick(i)}
-            className={`w-24 h-24 flex items-center justify-center text-4xl font-bold rounded-lg shadow-md text-blue-500 bg-white hover:bg-blue-100 transition-colors duration-200 ${square === "X" ? "text-blue-600" : "text-red-500"}`}
+            className={`w-24 h-24 flex items-center justify-center text-4xl font-bold rounded-lg shadow-md text-blue-500 bg-white hover:bg-blue-100 transition-colors duration-200 ${
+              square === "X" ? "text-blue-600" : "text-red-500"
+            }`}
           >
             {square}
           </button>
@@ -178,11 +196,13 @@ const TicTacToeV2 = () => {
           Mulai Ulang
         </button>
       </div>
-      <div className="mt-6 text-white text-lg">
+      <div className="mt-6 text-white text-lg text-center">
         <p>Rata-rata waktu eksekusi: {averageTime.toFixed(2)} ms</p>
         <p>Rata-rata node dievaluasi: {averageNodes.toFixed(2)}</p>
       </div>
-      {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} />}
+      {showConfetti && (
+        <Confetti width={window.innerWidth} height={window.innerHeight} />
+      )}
     </div>
   );
 };

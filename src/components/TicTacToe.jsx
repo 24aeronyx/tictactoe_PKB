@@ -5,9 +5,9 @@ const TicTacToe = () => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [status, setStatus] = useState("Giliran: Anda (X)");
-  const [moveStats, setMoveStats] = useState([]); // Statistik waktu dan node per langkah AI
-  const [showConfetti, setShowConfetti] = useState(false); // Untuk kontrol confetti
-  const [isDraw, setIsDraw] = useState(false); // Untuk kontrol status draw
+  const [moveStats, setMoveStats] = useState([]);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isDraw, setIsDraw] = useState(false);
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -40,7 +40,7 @@ const TicTacToe = () => {
     if (winner === "O") return 1;
     if (!newSquares.includes(null)) return 0;
 
-    let nodeCount = 0; // Node yang dievaluasi di dalam fungsi
+    let nodeCount = 0;
     const evaluate = (squares, maximizing) => {
       nodeCount++;
       const winner = calculateWinner(squares);
@@ -76,7 +76,6 @@ const TicTacToe = () => {
     let end = performance.now();
     let executionTime = end - start;
 
-    // Tambahkan waktu eksekusi dan node ke dalam statistik
     setMoveStats((prevStats) => [...prevStats, { executionTime, nodeCount }]);
 
     return score;
@@ -122,16 +121,16 @@ const TicTacToe = () => {
   useEffect(() => {
     if (winner) {
       setStatus(`Pemenang: ${winner}`);
-      setShowConfetti(true); // Tampilkan confetti jika ada pemenang
-      setIsDraw(false); // Pastikan status draw direset
+      setShowConfetti(true);
+      setIsDraw(false);
     } else if (!squares.includes(null)) {
       setStatus("Seri!");
-      setShowConfetti(false); // Sembunyikan confetti jika seri
-      setIsDraw(true); // Tandai hasil seri
+      setShowConfetti(false);
+      setIsDraw(true);
     } else {
       setStatus(`Giliran: ${isXNext ? "Anda (X)" : "AI (O)"}`);
-      setShowConfetti(false); // Sembunyikan confetti jika belum ada pemenang
-      setIsDraw(false); // Pastikan status draw direset
+      setShowConfetti(false);
+      setIsDraw(false);
     }
   }, [winner, squares, isXNext]);
 
@@ -139,9 +138,9 @@ const TicTacToe = () => {
     setSquares(Array(9).fill(null));
     setIsXNext(true);
     setStatus("Giliran: Anda (X)");
-    setMoveStats([]); // Reset statistik
-    setShowConfetti(false); // Sembunyikan confetti saat reset
-    setIsDraw(false); // Reset status draw saat reset
+    setMoveStats([]);
+    setShowConfetti(false);
+    setIsDraw(false);
   };
 
   const calculateAverages = () => {
