@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Confetti from 'react-confetti'; // Import Confetti component
 
 const calculateWinner = (squares) => {
     const lines = [
@@ -27,7 +28,7 @@ const TicTacToe = () => {
     const winner = calculateWinner(board);
 
     const handleClick = (index) => {
-        if (board[index] || winner) return;
+        if (board[index] || winner || !isXNext) return; // Prevent action if it's not X's turn
         const newBoard = board.slice();
         newBoard[index] = 'X'; // Player is 'X'
         setBoard(newBoard);
@@ -35,7 +36,7 @@ const TicTacToe = () => {
         if (!calculateWinner(newBoard) && !newBoard.every(Boolean)) {
             setTimeout(() => {
                 makeOptimalMove(newBoard);
-            }, 500); // Delay untuk memberikan waktu kepada pemain untuk melihat langkahnya
+            }, 500); // Delay to give time for player to see their move
         }
     };
 
@@ -105,12 +106,13 @@ const TicTacToe = () => {
             const newBoard = currentBoard.slice();
             newBoard[bestMove] = 'O'; // AI's move
             setBoard(newBoard);
-            setIsXNext(true); // Switch back to player's turn
+            setIsXNext(true); // Set turn back to player
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 to-blue-600">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 to-blue-600 relative">
+            {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />} {/* Show confetti on win */}
             <h1 className="text-4xl font-bold text-white mb-6 animate-bounce" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
                 Tic Tac Toe
             </h1>
@@ -123,13 +125,18 @@ const TicTacToe = () => {
                           ${value ? 'bg-gray-300 text-gray-700' : 'bg-white text-blue-500 hover:bg-blue-100'} 
                           ${winner ? 'cursor-default' : 'cursor-pointer'} 
                           shadow-lg`}
+                        disabled={winner || !isXNext} // Disable button if there's a winner or it's not the player's turn
                     >
                         {value}
                     </button>
                 ))}
             </div>
-            <div className="mt-6 text-white text-xl">
-                {winner && <p className="font-semibold text-center">{`Winner: ${winner}`}</p>}
+            <div className="mt-6 text-white text-xl flex flex-col">
+                {winner && (
+                    <p className="font-semibold text-4xl text-yellow-300 text-center bg-blue-800 p-4 rounded-lg shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)' }}>
+                        {`Winner: ${winner}`}
+                    </p>
+                )}
                 {!winner && board.every(Boolean) && <p className="font-semibold text-center">It's a Draw!</p>}
                 <button
                     onClick={resetGame}
@@ -137,10 +144,10 @@ const TicTacToe = () => {
                 >
                     Reset Game
                 </button>
-                <div className="mt-4 text-lg">
-                    <p>{`Execution Time: ${metrics.time.toFixed(2)} ms`}</p>
-                    <p>{`Nodes Evaluated: ${metrics.nodes}`}</p>
-                </div>
+            </div>
+            <div className="mt-4 text-lg text-center text-white">
+                <p>{`Execution Time: ${metrics.time.toFixed(2)} ms`}</p>
+                <p>{`Nodes Evaluated: ${metrics.nodes}`}</p>
             </div>
         </div>
     );
