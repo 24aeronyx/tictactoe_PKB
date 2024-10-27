@@ -5,6 +5,9 @@ const TicTacToe = () => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [status, setStatus] = useState("Giliran: Anda (X)");
+  const [moveStats, setMoveStats] = useState([]); // Statistik waktu dan node per langkah AI
+  const [showConfetti, setShowConfetti] = useState(false); // Untuk kontrol confetti
+  const [isDraw, setIsDraw] = useState(false); // Untuk kontrol status draw
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -18,7 +21,11 @@ const TicTacToe = () => {
       [2, 4, 6],
     ];
     for (let [a, b, c] of lines) {
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      if (
+        squares[a] &&
+        squares[a] === squares[b] &&
+        squares[a] === squares[c]
+      ) {
         return squares[a];
       }
     }
@@ -33,29 +40,46 @@ const TicTacToe = () => {
     if (winner === "O") return 1;
     if (!newSquares.includes(null)) return 0;
 
-    if (isMaximizing) {
-      let bestScore = -Infinity;
-      for (let i = 0; i < 9; i++) {
-        if (newSquares[i] === null) {
-          newSquares[i] = "O";
-          let score = minimax(newSquares, false);
-          newSquares[i] = null;
-          bestScore = Math.max(score, bestScore);
+    let nodeCount = 0; // Node yang dievaluasi di dalam fungsi
+    const evaluate = (squares, maximizing) => {
+      nodeCount++;
+      const winner = calculateWinner(squares);
+      if (winner === "X") return -1;
+      if (winner === "O") return 1;
+      if (!squares.includes(null)) return 0;
+
+      if (maximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (squares[i] === null) {
+            squares[i] = "O";
+            bestScore = Math.max(bestScore, evaluate(squares, false));
+            squares[i] = null;
+          }
         }
-      }
-      return bestScore;
-    } else {
-      let bestScore = Infinity;
-      for (let i = 0; i < 9; i++) {
-        if (newSquares[i] === null) {
-          newSquares[i] = "X";
-          let score = minimax(newSquares, true);
-          newSquares[i] = null;
-          bestScore = Math.min(score, bestScore);
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (squares[i] === null) {
+            squares[i] = "X";
+            bestScore = Math.min(bestScore, evaluate(squares, true));
+            squares[i] = null;
+          }
         }
+        return bestScore;
       }
-      return bestScore;
-    }
+    };
+
+    let start = performance.now();
+    let score = evaluate(newSquares, isMaximizing);
+    let end = performance.now();
+    let executionTime = end - start;
+
+    // Tambahkan waktu eksekusi dan node ke dalam statistik
+    setMoveStats((prevStats) => [...prevStats, { executionTime, nodeCount }]);
+
+    return score;
   };
 
   const bestMove = () => {
@@ -98,10 +122,16 @@ const TicTacToe = () => {
   useEffect(() => {
     if (winner) {
       setStatus(`Pemenang: ${winner}`);
+      setShowConfetti(true); // Tampilkan confetti jika ada pemenang
+      setIsDraw(false); // Pastikan status draw direset
     } else if (!squares.includes(null)) {
       setStatus("Seri!");
+      setShowConfetti(false); // Sembunyikan confetti jika seri
+      setIsDraw(true); // Tandai hasil seri
     } else {
       setStatus(`Giliran: ${isXNext ? "Anda (X)" : "AI (O)"}`);
+      setShowConfetti(false); // Sembunyikan confetti jika belum ada pemenang
+      setIsDraw(false); // Pastikan status draw direset
     }
   }, [winner, squares, isXNext]);
 
@@ -109,14 +139,32 @@ const TicTacToe = () => {
     setSquares(Array(9).fill(null));
     setIsXNext(true);
     setStatus("Giliran: Anda (X)");
+    setMoveStats([]); // Reset statistik
+    setShowConfetti(false); // Sembunyikan confetti saat reset
+    setIsDraw(false); // Reset status draw saat reset
   };
 
+  const calculateAverages = () => {
+    const totalTime = moveStats.reduce(
+      (acc, stat) => acc + stat.executionTime,
+      0
+    );
+    const totalNodes = moveStats.reduce((acc, stat) => acc + stat.nodeCount, 0);
+    const averageTime = totalTime / moveStats.length || 0;
+    const averageNodes = totalNodes / moveStats.length || 0;
+
+    return { averageTime, averageNodes };
+  };
+
+  const { averageTime, averageNodes } = calculateAverages();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-bl from-blue-500 to-indigo-600 w-full p-4">
-      <h1
-        className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce"
-        style={{ textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)" }}
-      >
+    <div
+      className={`flex flex-col items-center justify-center min-h-screen w-full p-4 ${
+        isDraw ? "bg-gray-500" : "bg-gradient-to-bl from-blue-500 to-indigo-600"
+      } transition-colors duration-500`}
+    >
+      <h1 className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce">
         Tic-Tac-Toe
       </h1>
       <div className="grid grid-cols-3 gap-4">
@@ -141,7 +189,13 @@ const TicTacToe = () => {
           Mulai Ulang
         </button>
       </div>
-      {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />}
+      <div className="mt-6 text-white text-lg text-center">
+        <p>Rata-rata waktu eksekusi: {averageTime.toFixed(2)} ms</p>
+        <p>Rata-rata node dievaluasi: {averageNodes.toFixed(2)}</p>
+      </div>
+      {showConfetti && (
+        <Confetti width={window.innerWidth} height={window.innerHeight} />
+      )}
     </div>
   );
 };

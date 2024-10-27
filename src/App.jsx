@@ -4,9 +4,9 @@ import TicTacToeV2 from "./components/TicTacToeV2";
 
 function App() {
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-between">
       <TicTacToe />
-      {/* <TicTacToeV2/> */}
+      <TicTacToeV2/>
     </div>
   );
 }
