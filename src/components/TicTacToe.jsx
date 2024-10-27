@@ -166,7 +166,9 @@ const TicTacToe = () => {
       <h1 className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce">
         Tic-Tac-Toe
       </h1>
-      <div className="grid grid-cols-3 gap-4">
+      <div
+        className={`grid grid-cols-3 gap-4 ${isDraw ? "animate-pulse" : ""}`}
+      >
         {squares.map((square, i) => (
           <button
             key={i}
