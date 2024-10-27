@@ -124,7 +124,7 @@ const TicTacToe = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-600 to-blue-400 relative w-full">
-            {/* {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />}  */}
+            {winner && <Confetti width={window.innerWidth} height={window.innerHeight} />} 
             <h1 className="text-4xl font-bold text-white mb-6 animate-bounce" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
                 Tic Tac Toe
             </h1>
