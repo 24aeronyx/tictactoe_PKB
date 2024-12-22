@@ -132,7 +132,7 @@ const TicTacToeV2 = () => {
     } else if (!squares.includes(null)) {
       setStatus("Seri!");
       setShowConfetti(false);
-      setIsDraw(true);
+      setIsDraw(true); // Kondisi seri
     } else {
       setStatus(`Giliran: ${isXNext ? "Anda (X)" : "AI (O)"}`);
       setShowConfetti(false);
@@ -165,12 +165,12 @@ const TicTacToeV2 = () => {
 
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${
-        isDraw ? "bg-gray-500" : "from-blue-500 to-indigo-600"
-      } w-full p-4 transition-colors duration-500`}
+      className={`flex flex-col items-center justify-center min-h-screen w-full p-4 ${
+        isDraw ? "bg-gray-500" : "bg-gradient-to-bl from-blue-500 to-indigo-600"
+      } transition-colors duration-500`}
     >
-      <h1 className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce">
-        Tic-Tac-Toe V2
+      <h1 className="text-5xl text-center font-bold text-white mb-8 tracking-widest">
+        MinMax w/Alpha-Beta
       </h1>
       <div
         className={`grid grid-cols-3 gap-4 ${isDraw ? "animate-pulse" : ""}`}

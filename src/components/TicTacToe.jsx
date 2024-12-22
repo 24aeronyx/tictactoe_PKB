@@ -163,8 +163,8 @@ const TicTacToe = () => {
         isDraw ? "bg-gray-500" : "bg-gradient-to-bl from-blue-500 to-indigo-600"
       } transition-colors duration-500`}
     >
-      <h1 className="text-5xl font-bold text-white mb-8 tracking-widest animate-bounce">
-        Tic-Tac-Toe
+      <h1 className="text-5xl font-bold text-white mb-8 tracking-widest text-center">
+        MinMax w/out Alpha-Beta
       </h1>
       <div
         className={`grid grid-cols-3 gap-4 ${isDraw ? "animate-pulse" : ""}`}
