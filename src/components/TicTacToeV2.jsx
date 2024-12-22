@@ -198,7 +198,7 @@ const TicTacToeV2 = () => {
       </div>
       <div className="mt-6 text-white text-lg text-center">
         <p>Rata-rata waktu eksekusi: {averageTime.toFixed(2)} ms</p>
-        <p>Rata-rata node dievaluasi: {averageNodes.toFixed(2)}</p>
+        <p>Rata-rata node dievaluasi: {averageNodes.toFixed(0)}</p>
       </div>
       {showConfetti && (
         <Confetti width={window.innerWidth} height={window.innerHeight} />
